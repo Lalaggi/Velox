@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.codeberg.el1lovescomputers.velox" path="/org/codeberg/el1lovescomputers/velox/">
+    <!-- Output -->
+    <key name="output-directory" type="s">
+      <default>'~/Downloads'</default>
+      <summary>Output directory</summary>
+      <description>Directory to save downloaded files</description>
+    </key>
+    <key name="output-template" type="s">
+      <default>'%(title)s.%(ext)s'</default>
+      <summary>Output template</summary>
+      <description>yt-dlp output filename template</description>
+    </key>
+    <key name="use-archive" type="b">
+      <default>false</default>
+      <summary>Use download archive</summary>
+      <description>Keep a record of downloaded files to skip duplicates</description>
+    </key>
+    <key name="archive-path" type="s">
+      <default>'~/Downloads/archive.txt'</default>
+      <summary>Archive file path</summary>
+      <description>Path to the download archive file</description>
+    </key>
+
+    <!-- Network -->
+    <key name="rate-limit" type="s">
+      <default>''</default>
+      <summary>Rate limit</summary>
+      <description>Maximum download speed in KB/s (empty = unlimited)</description>
+    </key>
+    <key name="proxy" type="s">
+      <default>''</default>
+      <summary>Proxy</summary>
+      <description>Proxy URL for downloads</description>
+    </key>
+    <key name="cookies-file" type="s">
+      <default>''</default>
+      <summary>Cookies file</summary>
+      <description>Path to cookies file for authenticated downloads</description>
+    </key>
+    <key name="force-ipv4" type="b">
+      <default>false</default>
+      <summary>Force IPv4</summary>
+      <description>Force IPv4 for all connections</description>
+    </key>
+
+    <!-- Downloads -->
+    <key name="max-concurrent" type="i">
+      <default>3</default>
+      <summary>Maximum concurrent downloads</summary>
+      <description>Number of downloads to run simultaneously</description>
+    </key>
+
+    <!-- SponsorBlock defaults -->
+    <key name="sponsorblock-enabled" type="b">
+      <default>false</default>
+      <summary>Enable SponsorBlock</summary>
+      <description>Enable SponsorBlock by default</description>
+    </key>
+    <key name="sponsorblock-remove" type="b">
+      <default>true</default>
+      <summary>SponsorBlock remove mode</summary>
+      <description>Remove sponsored segments (true) or mark as chapters (false)</description>
+    </key>
+    <key name="sponsorblock-categories" type="as">
+      <default>['sponsor','intro','outro','selfpromo']</default>
+      <summary>SponsorBlock categories</summary>
+      <description>Which SponsorBlock categories to process</description>
+    </key>
+
+    <!-- Default formats -->
+    <key name="default-video-codec" type="s">
+      <default>'H.264'</default>
+      <summary>Default video codec</summary>
+    </key>
+    <key name="default-audio-codec" type="s">
+      <default>'AAC'</default>
+      <summary>Default audio codec</summary>
+    </key>
+    <key name="default-quality" type="s">
+      <default>'Best'</default>
+      <summary>Default video quality</summary>
+    </key>
+    <key name="default-container" type="s">
+      <default>'MP4'</default>
+      <summary>Default container format</summary>
+    </key>
+    <key name="default-audio-only" type="b">
+      <default>false</default>
+      <summary>Default to audio only</summary>
+    </key>
+    <key name="default-subtitle-langs" type="s">
+      <default>'en'</default>
+      <summary>Default subtitle languages</summary>
+    </key>
+    <key name="default-download-subs" type="b">
+      <default>false</default>
+      <summary>Default download subtitles</summary>
+    </key>
+    <key name="default-embed-subs" type="b">
+      <default>false</default>
+      <summary>Default embed subtitles</summary>
+    </key>
+    <key name="default-save-subs-as-srt" type="b">
+      <default>false</default>
+      <summary>Default save subtitles as .srt</summary>
+    </key>
+    <key name="default-auto-subs" type="b">
+      <default>false</default>
+      <summary>Default auto-subtitles</summary>
+    </key>
+    <key name="default-embed-metadata" type="b">
+      <default>false</default>
+      <summary>Default embed metadata</summary>
+    </key>
+    <key name="default-embed-thumbnail" type="b">
+      <default>false</default>
+      <summary>Default embed thumbnail</summary>
+    </key>
+    <key name="default-embed-chapters" type="b">
+      <default>false</default>
+      <summary>Default embed chapters</summary>
+    </key>
+  </schema>
+</schemalist>
