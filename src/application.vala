@@ -1,7 +1,7 @@
 public class Velox.Application : Adw.Application {
     public Application () {
         Object (
-            application_id: "org.codeberg.el1lovescomputers.velox",
+            application_id: "com.github.lalaggi.velox",
             flags: ApplicationFlags.DEFAULT_FLAGS
         );
     }

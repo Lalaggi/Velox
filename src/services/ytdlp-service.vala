@@ -217,6 +217,15 @@ public class Velox.YtdlpService : GLib.Object {
         args.add ("-o");
         args.add (output_dir + "/" + template);
 
+        // Download archive
+        if (opts.use_archive) {
+            string archive = opts.archive_path.length > 0
+                ? opts.archive_path.replace ("~", Environment.get_home_dir ())
+                : Environment.get_home_dir () + "/Downloads/archive.txt";
+            args.add ("--download-archive");
+            args.add (archive);
+        }
+
         // Extra args
         if (opts.extra_args.length > 0) {
             string[] extra = opts.extra_args.split (" ");
@@ -253,11 +262,11 @@ public class Velox.YtdlpService : GLib.Object {
 
         string codec_part = "";
         switch (opts.video_codec) {
-            case "h264": codec_part = "[vcodec~='^((he|a)vc|h26[45])']"; break;
-            case "h265": codec_part = "[vcodec~='^(hevc|h265)']"; break;
-            case "vp9":  codec_part = "[vcodec^='vp9']"; break;
-            case "av1":  codec_part = "[vcodec^='av01']"; break;
-            default:     codec_part = ""; break;
+            case "H.264": codec_part = "[vcodec~='^((he|a)vc|h26[45])']"; break;
+            case "H.265": codec_part = "[vcodec~='^(hevc|h265)']"; break;
+            case "VP9":   codec_part = "[vcodec^='vp9']"; break;
+            case "AV1":   codec_part = "[vcodec^='av01']"; break;
+            default:      codec_part = ""; break;
         }
 
         string height_part = height_filter.length > 0

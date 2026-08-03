@@ -37,6 +37,10 @@ public class Velox.DownloadOptions : GLib.Object {
     }
     private string[] _sb_categories = { "sponsor", "intro", "outro", "selfpromo" };
 
+    // Archive
+    public bool use_archive { get; set; default = false; }
+    public string archive_path { get; set; default = ""; }
+
     // Advanced
     public string extra_args { get; set; default = ""; }
 }

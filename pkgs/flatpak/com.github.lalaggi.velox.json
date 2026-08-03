@@ -1,7 +1,7 @@
 {
-    "app-id": "org.codeberg.el1lovescomputers.velox",
+    "app-id": "com.github.lalaggi.velox",
     "runtime": "org.gnome.Platform",
-    "runtime-version": "48",
+    "runtime-version": "49",
     "sdk": "org.gnome.Sdk",
     "command": "velox",
     "finish-args": [

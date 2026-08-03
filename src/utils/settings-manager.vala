@@ -2,7 +2,7 @@ public class Velox.SettingsManager : GLib.Object {
     private GLib.Settings settings;
 
     construct {
-        settings = new GLib.Settings ("org.codeberg.el1lovescomputers.velox");
+        settings = new GLib.Settings ("com.github.lalaggi.velox");
     }
 
     // Output
@@ -155,5 +155,7 @@ public class Velox.SettingsManager : GLib.Object {
         opts.sponsorblock_enabled = sponsorblock_enabled;
         opts.sponsorblock_remove = sponsorblock_remove;
         opts.sponsorblock_categories = sponsorblock_categories;
+        opts.use_archive = use_archive;
+        opts.archive_path = archive_path;
     }
 }

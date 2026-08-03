@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>org.codeberg.el1lovescomputers.velox</id>
+  <id>com.github.lalaggi.velox</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
   <name>Velox</name>
@@ -10,8 +10,8 @@
       A fast, clean frontend for yt-dlp built with GTK4 and libadwaita.
     </p>
   </description>
-  <url type="homepage">https://github.com/example/velox</url>
-  <launchable type="desktop-id">org.codeberg.el1lovescomputers.velox.desktop</launchable>
+  <url type="homepage">https://github.com/Lalaggi/Velox</url>
+  <launchable type="desktop-id">com.github.lalaggi.velox.desktop</launchable>
   <translation type="gettext">velox</translation>
   <requires>
     <display_length compare="ge">360</display_length>

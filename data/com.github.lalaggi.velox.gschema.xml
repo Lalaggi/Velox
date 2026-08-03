@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-  <schema id="org.codeberg.el1lovescomputers.velox" path="/org/codeberg/el1lovescomputers/velox/">
+  <schema id="com.github.lalaggi.velox" path="/com/github/lalaggi/velox/">
     <!-- Output -->
     <key name="output-directory" type="s">
       <default>'~/Downloads'</default>

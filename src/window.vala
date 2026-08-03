@@ -195,6 +195,14 @@ public class Velox.Window : Adw.ApplicationWindow {
             return;
         }
 
+        // Skip if this URL already exists in the store with info populated
+        for (uint i = 0; i < item_store.n_items; i++) {
+            var existing = (Velox.DownloadItem) item_store.get_item (i);
+            if (existing.url == url && existing.title.length > 0) {
+                return;
+            }
+        }
+
         var item = new Velox.DownloadItem (url);
         item_store.append (item);
 
@@ -666,7 +674,7 @@ public class Velox.Window : Adw.ApplicationWindow {
                 var box_child = fbc.get_child ();
                 if (box_child is Gtk.CheckButton) {
                     var check = (Gtk.CheckButton) box_child;
-                    check.active = contains_string (download_options.sponsorblock_categories, check.label.down ());
+                    check.active = GLib.strv_contains (download_options.sponsorblock_categories, check.label.down ());
                 }
             }
             child = child.get_next_sibling ();
@@ -684,12 +692,7 @@ public class Velox.Window : Adw.ApplicationWindow {
         return 0;
     }
 
-    private bool contains_string (string[] arr, string val) {
-        foreach (var s in arr) {
-            if (s == val) return true;
-        }
-        return false;
-    }
+
 
     private void sync_options_from_ui () {
         download_options.is_audio_only = (type_dropdown.get_selected () == 1);

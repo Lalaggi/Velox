@@ -70,6 +70,7 @@ public class Velox.DownloadManager : GLib.Object {
             queue.remove_link (queue.find (item));
 
             active_count++;
+            item.error_message = "";
             item.update_state (DOWNLOADING);
             download_started (item);
 

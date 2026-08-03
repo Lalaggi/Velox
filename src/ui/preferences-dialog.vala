@@ -188,7 +188,7 @@ public class Velox.PreferencesDialog : Adw.PreferencesDialog {
         var saved_cats = mgr.sponsorblock_categories;
         for (int i = 0; i < cat_labels.length; i++) {
             var check = new Gtk.CheckButton.with_label (cat_labels[i]);
-            check.active = contains_string (saved_cats, cat_keys[i]);
+            check.active = GLib.strv_contains (saved_cats, cat_keys[i]);
             check.name = cat_keys[i];
             sb_cats_box.append (check);
         }
@@ -439,10 +439,5 @@ public class Velox.PreferencesDialog : Adw.PreferencesDialog {
         return idx >= 0 && idx < codecs.length ? codecs[idx] : "Any";
     }
 
-    private bool contains_string (string[] arr, string val) {
-        foreach (var s in arr) {
-            if (s == val) return true;
-        }
-        return false;
-    }
+
 }
