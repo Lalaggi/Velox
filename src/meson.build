@@ -10,6 +10,8 @@ sources = files(
     'utils/progress-parser.vala',
     'utils/settings-manager.vala',
     'ui/preferences-dialog.vala',
+    'ui/download-item-row.vala',
+    'ui/options-page-builder.vala',
 )
 
 app = executable(

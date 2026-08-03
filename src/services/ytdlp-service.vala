@@ -43,6 +43,18 @@ public class Velox.YtdlpService : GLib.Object {
             );
 
             var stdout = new DataInputStream (proc.get_stdout_pipe ());
+            var stderr = new DataInputStream (proc.get_stderr_pipe ());
+
+            // Drain stderr concurrently to prevent pipe-buffer deadlock.
+            // If yt-dlp writes enough to stderr to fill the OS pipe buffer
+            // (typically 64 KB), the child blocks and never closes stdout,
+            // causing this coroutine to hang forever.
+            var err_builder = new StringBuilder ();
+            bool stderr_done = false;
+            drain_stderr.begin (stderr, err_builder, (obj, res) => {
+                drain_stderr.end (res);
+                stderr_done = true;
+            });
 
             string? line;
             while ((line = yield stdout.read_line_async (Priority.DEFAULT)) != null) {
@@ -67,6 +79,10 @@ public class Velox.YtdlpService : GLib.Object {
                 } catch (Error e) {
                     // Skip lines we can't parse.
                 }
+            }
+
+            while (!stderr_done) {
+                yield wait_idle ();
             }
 
             yield proc.wait_async ();
