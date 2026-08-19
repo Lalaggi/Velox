@@ -10,7 +10,7 @@
       A fast, clean frontend for yt-dlp built with GTK4 and libadwaita.
     </p>
   </description>
-  <url type="homepage">https://github.com/Lalaggi/Velox</url>
+  <url type="homepage">https://gitlab.com/Lalaggi/Velox</url>
   <launchable type="desktop-id">com.github.lalaggi.velox.desktop</launchable>
   <translation type="gettext">velox</translation>
   <requires>

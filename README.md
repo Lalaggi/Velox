@@ -4,7 +4,7 @@
 
 A GTK4 media downloader written in Vala.
 
-**Source:** [github.com/Lalaggi/Velox](https://github.com/Lalaggi/Velox)
+**Source:** [gitlab.com/Lalaggi/Velox](https://gitlab.com/Lalaggi/Velox)
 
 ## Features
 
@@ -67,7 +67,7 @@ gitpkg install el1lovescomputers/velox --supplier "codeberg.org"
 ### From Source
 
 ```bash
-git clone https://github.com/Lalaggi/Velox.git
+git clone https://gitlab.com/Lalaggi/Velox.git
 cd velox
 meson setup build --buildtype=release --prefix=/usr
 sudo ninja -C build install
@@ -75,4 +75,4 @@ sudo ninja -C build install
 
 ## Reporting Issues
 
-https://github.com/Lalaggi/Velox/issues
+https://gitlab.com/Lalaggi/Velox/-/issues
