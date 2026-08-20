@@ -14,7 +14,7 @@
         "--filesystem=home",
         "--talk-name=org.gtk.vfs.*",
         "--env=PATH=/app/bin:/app/extensions/bin:/usr/bin",
-        "--env=PYTHONPATH=/app/lib/python3.12/site-packages"
+        "--env=PYTHONPATH=/app/lib/python3.13/site-packages"
     ],
     "build-options": {
         "env": {
@@ -32,112 +32,20 @@
         "/share/vala",
         "*.la",
         "*.a",
-        "/lib/python3.12/test/*",
-        "/lib/python3.12/idlelib/*",
-        "/lib/python3.12/__pycache__/*",
-        "/lib/python3.12/distutils/__pycache__/*",
-        "/lib/python3.12/ensurepip/__pycache__/*"
+        "/lib/python3.13/test/*",
+        "/lib/python3.13/idlelib/*",
+        "/lib/python3.13/__pycache__/*",
+        "*.pyc"
     ],
+    "add-extensions": {
+        "org.freedesktop.Platform.Extension.ffmpeg-full": {
+            "directory": "lib/ffmpeg",
+            "version": "24.08",
+            "add-ld-path": "."
+        }
+    },
     "modules": [
-        {
-            "name": "ffmpeg",
-            "buildsystem": "autotools",
-            "config-opts": [
-                "--disable-doc",
-                "--disable-ffplay",
-                "--disable-static",
-                "--enable-shared"
-            ],
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://ffmpeg.org/releases/ffmpeg-7.1.1.tar.xz",
-                    "sha256": "733984395e0dbbe5c046abda2dc49a5544e7e0e1e2366bba849222ae9e3a03b1"
-                }
-            ]
-        },
-        {
-            "name": "python3",
-            "buildsystem": "autotools",
-            "config-opts": [
-                "--with-ensurepip=install",
-                "--with-system-ffi",
-                "--with-ssl-default-suites=openssl",
-                "--with-openssl-rpath=auto"
-            ],
-            "no-autogen": true,
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://www.python.org/ftp/python/3.12.4/Python-3.12.4.tar.xz",
-                    "sha256": "f6d419a6d8743ab26700801b4908d26d97e8b986e14f95de31b32de2b0e79554"
-                }
-            ]
-        },
-        {
-            "name": "python3-yt-dlp",
-            "buildsystem": "simple",
-            "build-commands": [
-                "pip3 install --prefix=/app --break-system-packages --no-build-isolation --no-index --find-links . yt-dlp"
-            ],
-            "sources": [
-                {
-                    "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/f9/8a/cd4c9b02c10c563adfe78118310129641900e1cd6de888cfae2452072696/yt_dlp-2026.7.4-py3-none-any.whl",
-                    "sha256": "f11f2b11d5a8ac4059f9bdf29fa4407dc7c6bb00c5097e95ca22a7a9db518266"
-                },
-                {
-                    "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/47/d8/a29e4e3991765e7ce4ed1f7e4074fe1ba9da03e0048639734de60f9cadb9/mutagen-1.48.1-py3-none-any.whl",
-                    "sha256": "4f077fe87d3fc7fba259aa63d8c026b18382ca6a42ef37c61e16f1b1b5b82fe7"
-                },
-                {
-                    "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/c8/a9/8862616a85cf450d2822dbd4fff1fcaba90877907a6ff5bc2672cafe42f8/pycryptodomex-3.23.0-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-                    "sha256": "f489c4765093fb60e2edafdf223397bc716491b2b69fe74367b70d6999257a5c"
-                },
-                {
-                    "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/03/a7/03aa61fbc3c5cbf99b44d158665f9b0dd3d8059be16c460208d9e385c837/brotli-1.2.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
-                    "sha256": "072e7624b1fc4d601036ab3f4f27942ef772887e876beff0301d261210bca97f"
-                },
-                {
-                    "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/ef/2f/c5464532e965badff2f4c4c1a3a83f5697f0d7c407ed0cda44aaa99bb451/certifi-2026.6.17-py3-none-any.whl",
-                    "sha256": "2227dcbaafe0d2f59279d1762ddddc37783ed4354594f194ffc31d20f41fc3db"
-                },
-                {
-                    "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/a0/f4/c67b0b3f1b9245e8d266f0f112c500d50e5b4e83cb6f3b71b6528104182a/requests-2.34.2-py3-none-any.whl",
-                    "sha256": "2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0"
-                },
-                {
-                    "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/01/c4/4fa4c8b3097a11f3c5f09a35b72ed6855fb1d332469504962ab7bafcc702/charset_normalizer-3.4.9-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
-                    "sha256": "5e226f6218febc71f6c1fc2fafb91c226f75bdc1d8fb12d66823716e891608fd"
-                },
-                {
-                    "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/1e/5e/d4e9f1a599fb8e573b7b87160658329fbf28d19eac2718f51fc3def3aa5a/idna-3.18-py3-none-any.whl",
-                    "sha256": "7f952cbe720b688055e3f87de14f5c3e5fdaa8bc3928985c4077ca689de849a2"
-                },
-                {
-                    "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/7f/3e/5db95bcf282c52709639744ca2a8b149baccf648e39c8cc87553df9eae0c/urllib3-2.7.0-py3-none-any.whl",
-                    "sha256": "9fb4c81ebbb1ce9531cce37674bbc6f1360472bc18ca9a553ede278ef7276897"
-                },
-                {
-                    "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/9d/62/79b1c8f0cee0da648b4899e1c5b0dbd3aa59846985136a54854db6827ab4/websockets-16.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
-                    "sha256": "35f41979c8623df9bd30d949d82010a8fda5c56ff12cd8508a5b7272b6d4b53a"
-                },
-                {
-                    "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/e3/bd/520769863744b669440a924271a6159ddd82ad5ae26b4ac4d4b69e9f8d44/yt_dlp_ejs-0.8.0-py3-none-any.whl",
-                    "sha256": "79300e5fca7f937a1eeede11f0456862c1b41107ce1d726871e0207424f4bdb4"
-                }
-            ]
-        },
+        "python3-yt-dlp.json",
         {
             "name": "velox",
             "builddir": true,
