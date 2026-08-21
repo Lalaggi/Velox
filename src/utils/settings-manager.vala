@@ -157,5 +157,9 @@ public class Velox.SettingsManager : GLib.Object {
         opts.sponsorblock_categories = sponsorblock_categories;
         opts.use_archive = use_archive;
         opts.archive_path = archive_path;
+        opts.rate_limit = rate_limit;
+        opts.proxy = proxy;
+        opts.cookies_file = cookies_file;
+        opts.force_ipv4 = force_ipv4;
     }
 }

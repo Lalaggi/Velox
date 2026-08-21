@@ -43,4 +43,10 @@ public class Velox.DownloadOptions : GLib.Object {
 
     // Advanced
     public string extra_args { get; set; default = ""; }
+
+    // Network
+    public string rate_limit { get; set; default = ""; }
+    public string proxy { get; set; default = ""; }
+    public string cookies_file { get; set; default = ""; }
+    public bool force_ipv4 { get; set; default = false; }
 }

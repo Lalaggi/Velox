@@ -253,6 +253,23 @@ public class Velox.YtdlpService : GLib.Object {
             }
         }
 
+        // Network settings
+        if (opts.rate_limit.length > 0) {
+            args.add ("--limit-rate");
+            args.add (opts.rate_limit);
+        }
+        if (opts.proxy.length > 0) {
+            args.add ("--proxy");
+            args.add (opts.proxy);
+        }
+        if (opts.cookies_file.length > 0) {
+            args.add ("--cookies");
+            args.add (opts.cookies_file);
+        }
+        if (opts.force_ipv4) {
+            args.add ("--force-ipv4");
+        }
+
         args.add (item.url);
 
         // Convert to string[]

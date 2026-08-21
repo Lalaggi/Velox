@@ -6,6 +6,8 @@ A GTK4 media downloader written in Vala.
 
 **Source:** [gitlab.com/Lalaggi/Velox](https://gitlab.com/Lalaggi/Velox)
 
+![Velox main window](screenshots/Velox%20Main.png)
+
 ## Features
 
 - **Download** — Paste one or more URLs, choose format and quality, and download with real-time progress
@@ -55,7 +57,7 @@ sudo apk add vala meson gtk4.0-dev libadwaita-dev json-glib-dev
 
 ### Flatpak
 
-Pre-built flatpak packages are available in [flatpak-downloads](https://codeberg.org/el1lovescomputers/Velox/src/branch/main/flatpak-downloads). May be slightly behind the latest version.
+Pre-built flatpak packages are available in [flatpak-downloads](https://gitlab.com/Lalaggi/Velox/-/tree/main/flatpak-downloads). May be slightly behind the latest version.
 
 ### Recommended: [gitpkg](https://gitlab.com/Lalaggi/gitpkg)
 
