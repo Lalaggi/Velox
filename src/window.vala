@@ -62,6 +62,12 @@ public class Velox.Window : Adw.ApplicationWindow {
         options_builder.container_dropdown.notify["selected"].connect (update_thumbnail_sensitivity);
 
         sync_ui_from_options ();
+
+        // Dependency + config validation after window is realized
+        GLib.Idle.add (() => {
+            check_dependencies ();
+            return false;
+        });
     }
 
     private Adw.ToolbarView build_url_page () {
@@ -182,6 +188,7 @@ public class Velox.Window : Adw.ApplicationWindow {
         row.subtitle = "Fetching info...";
 
         row.remove_clicked.connect (remove_item);
+        row.retry_clicked.connect (retry_item);
         url_list.append (row);
         item_rows.@set (item, row);
 
@@ -218,6 +225,16 @@ public class Velox.Window : Adw.ApplicationWindow {
             item_rows.remove (item);
         }
         update_empty_state ();
+    }
+
+    private void retry_item (Velox.DownloadItem item) {
+        var row = item_rows.@get (item);
+        if (row != null) {
+            row.set_state_downloading ();
+            row.set_subtitle ("Retrying...");
+            row.tooltip_text = "";
+        }
+        download_manager.retry_item (item);
     }
 
     private async void expand_playlist (Velox.DownloadItem placeholder, string url, Velox.DownloadItemRow row) {
@@ -290,23 +307,72 @@ public class Velox.Window : Adw.ApplicationWindow {
 
     private void on_download_failed (Velox.DownloadItem item, string error) {
         printerr ("Download failed: %s\nError: %s\n", item.url, error);
+        string brief = error;
+        string[] lines = error.split ("\n");
+        for (int i = lines.length - 1; i >= 0; i--) {
+            var l = lines[i].strip ();
+            if (l.length > 0 && !l.has_prefix ("Usage:")) {
+                brief = l;
+                break;
+            }
+        }
+        if (brief.length > 80) brief = brief.substring (0, 77) + "...";
+        if (item.retry_count >= item.max_retries && item.retry_count > 0) {
+            brief = "Failed after %d retries: %s".printf (item.max_retries, brief);
+        }
         var row = item_rows.@get (item);
         if (row != null) {
             row.hide_progress ();
             row.set_state_error ();
-
-            string brief = error;
-            string[] lines = error.split ("\n");
-            for (int i = lines.length - 1; i >= 0; i--) {
-                var l = lines[i].strip ();
-                if (l.length > 0 && !l.has_prefix ("Usage:")) {
-                    brief = l;
-                    break;
-                }
-            }
             row.set_subtitle (brief);
+            row.tooltip_text = error;
+            if (item.retry_count < item.max_retries) {
+                row.tooltip_text += "\n\nClick to retry.";
+            }
         }
         item.status_text = "Error";
+        item.error_message = error;
+        // Toast disabled — window has no ToastOverlay; subtitle + tooltip already convey error
+    }
+
+    private void check_dependencies () {
+        // yt-dlp existence
+        if (GLib.Environment.find_program_in_path ("yt-dlp") == null) {
+            var dialog = new Adw.AlertDialog (
+                "yt-dlp not found",
+                "Velox requires yt-dlp to be installed and on your PATH.\n\nInstall it via your package manager (e.g. pacman -S yt-dlp / pipx install yt-dlp) and restart Velox."
+            );
+            dialog.add_response ("ok", "OK");
+            dialog.choose (this, null);
+            warning ("yt-dlp not found on PATH — downloads will fail");
+        }
+        // Output directory writable check
+        string dir = settings_manager.output_directory;
+        if (dir.length > 0) {
+            string expanded = dir.replace ("~", Environment.get_home_dir ());
+            var f = File.new_for_path (expanded);
+            if (!f.query_exists ()) {
+                try { f.make_directory_with_parents (); } catch (Error e) {
+                    var d = new Adw.AlertDialog (
+                        "Output folder not writable",
+                        "Cannot create %s:\n%s".printf (expanded, e.message)
+                    );
+                    d.add_response ("ok", "OK");
+                    d.choose (this, null);
+                }
+            }
+        }
+        // Archive path validation
+        if (settings_manager.use_archive) {
+            string ap = settings_manager.archive_path;
+            if (ap.length > 0) {
+                string exp = ap.replace ("~", Environment.get_home_dir ());
+                var pf = File.new_for_path (Path.get_dirname (exp));
+                if (!pf.query_exists ()) {
+                    warning ("Archive directory does not exist: %s", Path.get_dirname (exp));
+                }
+            }
+        }
     }
 
     private void update_empty_state () {

@@ -60,6 +60,16 @@ public class Velox.DownloadManager : GLib.Object {
         }
     }
 
+    public void retry_item (Velox.DownloadItem item) {
+        if (item.state == DOWNLOADING) return;
+        item.retry_count = 0;
+        item.error_message = "";
+        item.update_state (QUEUED);
+        item.status_text = "Queued (retry)";
+        queue.prepend (item);
+        process_queue ();
+    }
+
     private void process_queue () {
         if (cancelled) {
             return;
@@ -91,8 +101,36 @@ public class Velox.DownloadManager : GLib.Object {
         process_queue ();
     }
 
+    private bool is_retryable (string error) {
+        string e = error.down ();
+        return e.contains ("429") || e.contains ("403") || e.contains ("503") ||
+               e.contains ("504") || e.contains ("timeout") || e.contains ("timed out") ||
+               e.contains ("unable to download") || e.contains ("http error") ||
+               e.contains ("temporary failure") || e.contains ("network is unreachable") ||
+               e.contains ("connection reset") || e.contains ("ssl") ||
+               e.contains ("eai_again") || e.contains ("getaddrinfo");
+    }
+
     private void on_item_failed (Velox.DownloadItem item, string error) {
         if (item.state == CANCELLED) {
+            return;
+        }
+        // Auto-retry transient yt-dlp errors (rate-limit / network) with exponential backoff
+        if (is_retryable (error) && item.retry_count < item.max_retries) {
+            item.retry_count++;
+            int delay = (1 << (item.retry_count - 1)) * 1000; // 1s, 2s, 4s
+            warning ("Download failed for %s (attempt %d/%d): %s — retrying in %dms", item.url, item.retry_count, item.max_retries, error, delay);
+            item.status_text = "Retrying (%d/%d)...".printf (item.retry_count, item.max_retries);
+            item.error_message = error;
+            release_slot ();
+            // Re-queue at front with delay
+            GLib.Timeout.add (delay, () => {
+                if (item.state == CANCELLED) return false;
+                queue.prepend (item);
+                item.update_state (QUEUED);
+                process_queue ();
+                return false;
+            });
             return;
         }
         release_slot ();

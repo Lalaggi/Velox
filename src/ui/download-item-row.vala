@@ -6,6 +6,7 @@ public class Velox.DownloadItemRow : Adw.ActionRow {
     private Gtk.Button action_button;
 
     public signal void remove_clicked (Velox.DownloadItem item);
+    public signal void retry_clicked (Velox.DownloadItem item);
 
     public DownloadItemRow (Velox.DownloadItem item) {
         Object (item: item);
@@ -34,7 +35,11 @@ public class Velox.DownloadItemRow : Adw.ActionRow {
         action_button.add_css_class ("flat");
         action_button.add_css_class ("circular");
         action_button.clicked.connect (() => {
-            remove_clicked (item);
+            if (item.state == ERROR && item.error_message.length > 0) {
+                retry_clicked (item);
+            } else {
+                remove_clicked (item);
+            }
         });
         add_suffix (action_button);
 
@@ -82,9 +87,15 @@ public class Velox.DownloadItemRow : Adw.ActionRow {
     }
 
     public void set_state_error () {
-        action_button.icon_name = "dialog-error-symbolic";
-        action_button.tooltip_text = "Dismiss";
+        action_button.icon_name = "view-refresh-symbolic";
+        action_button.tooltip_text = "Retry";
         action_button.remove_css_class ("flat");
         action_button.add_css_class ("error");
+    }
+
+    public void set_state_retrying () {
+        action_button.icon_name = "content-loading-symbolic";
+        action_button.tooltip_text = "Retrying…";
+        action_button.sensitive = false;
     }
 }

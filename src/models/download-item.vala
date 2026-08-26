@@ -9,6 +9,8 @@ public class Velox.DownloadItem : GLib.Object {
     public string status_text { get; set; default = "Queued"; }
     public string output_path { get; set; default = ""; }
     public string error_message { get; set; default = ""; }
+    public int retry_count { get; set; default = 0; }
+    public int max_retries { get; set; default = 3; }
 
     public DownloadItem (string url) {
         Object (url: url);
