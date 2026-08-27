@@ -24,6 +24,11 @@
     <display_length compare="ge">360</display_length>
   </requires>
   <releases>
+    <release version="0.5.1" date="2026-08-27">
+      <description>
+        <p>Fix audio-only pipeline (proper Opus/MP3/FLAC mapping, hide video settings) and separate Audio/Video settings.</p>
+      </description>
+    </release>
     <release version="0.1.0" date="2026-07-11">
       <description>
         <p>Initial release.</p>
