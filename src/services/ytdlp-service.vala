@@ -158,11 +158,16 @@ public class Velox.YtdlpService : GLib.Object {
         args.add ("--no-warnings");
         args.add ("--progress");
 
-        // Format selection
+        // Format selection - audio and video have completely separate pipelines
         if (opts.is_audio_only) {
+            // Audio-only: extract audio with proper format mapping
+            // Do NOT use video codec/quality/container at all
             args.add ("-x");
-            args.add ("--audio-format");
-            args.add (opts.audio_container);
+            string audio_fmt = get_audio_format_for_codec (opts.audio_codec);
+            if (audio_fmt.length > 0) {
+                args.add ("--audio-format");
+                args.add (audio_fmt);
+            }
 
             if (opts.audio_quality != "best") {
                 args.add ("--audio-quality");
@@ -310,6 +315,18 @@ public class Velox.YtdlpService : GLib.Object {
             return "bestvideo*%s%s+ba/b" .printf (height_part, codec_part);
         }
         return "bestvideo+ba/b";
+    }
+
+    private string get_audio_format_for_codec (string codec) {
+        // Map audio codec to the --audio-format container yt-dlp/ffmpeg expects
+        // Any -> "" (no conversion, keep original best audio)
+        switch (codec) {
+            case "AAC":  return "m4a";
+            case "Opus": return "opus";
+            case "MP3":  return "mp3";
+            case "FLAC": return "flac";
+            default:     return "";
+        }
     }
 
     private string get_audio_codec_filter (string codec) {

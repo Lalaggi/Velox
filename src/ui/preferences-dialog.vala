@@ -210,6 +210,7 @@ public class Velox.PreferencesDialog : Adw.PreferencesDialog {
         default_audio_only_row.active = mgr.default_audio_only;
         formats_group.add (default_audio_only_row);
 
+        // Video group (hidden when Audio only is on)
         default_codec_row = new Adw.ComboRow ();
         default_codec_row.title = "Video codec";
         default_codec_row.model = new Gtk.StringList ({
@@ -241,6 +242,18 @@ public class Velox.PreferencesDialog : Adw.PreferencesDialog {
         });
         default_audio_codec_row.selected = audio_codec_to_index (mgr.default_audio_codec);
         formats_group.add (default_audio_codec_row);
+
+        // Audio-only hides video-related rows (they are ignored by the audio pipeline)
+        void update_format_visibility () {
+            bool audio = default_audio_only_row.active;
+            default_codec_row.visible = !audio;
+            default_quality_row.visible = !audio;
+            default_container_row.visible = !audio;
+        }
+        update_format_visibility ();
+        default_audio_only_row.notify["active"].connect (() => {
+            update_format_visibility ();
+        });
 
         default_sublangs_row = new Adw.EntryRow ();
         default_sublangs_row.title = "Subtitle languages";

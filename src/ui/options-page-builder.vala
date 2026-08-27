@@ -4,6 +4,10 @@ public class Velox.OptionsPageBuilder : GLib.Object {
     public Gtk.DropDown quality_dropdown { get; private set; }
     public Gtk.DropDown container_dropdown { get; private set; }
     public Gtk.DropDown audio_codec_dropdown { get; private set; }
+    // Labels for video-specific rows (hidden in Audio Only)
+    private Gtk.Label codec_label;
+    private Gtk.Label quality_label;
+    private Gtk.Label container_label;
     public Gtk.CheckButton meta_check { get; private set; }
     public Gtk.CheckButton thumb_check { get; private set; }
     public Gtk.CheckButton chapters_check { get; private set; }
@@ -59,7 +63,7 @@ public class Velox.OptionsPageBuilder : GLib.Object {
         format_grid.column_spacing = 12;
         format_grid.row_spacing = 6;
 
-        var codec_label = new Gtk.Label ("Codec:");
+        codec_label = new Gtk.Label ("Codec:");
         codec_label.xalign = 1;
         format_grid.attach (codec_label, 0, 0);
 
@@ -68,7 +72,7 @@ public class Velox.OptionsPageBuilder : GLib.Object {
         });
         format_grid.attach (codec_dropdown, 1, 0);
 
-        var quality_label = new Gtk.Label ("Quality:");
+        quality_label = new Gtk.Label ("Quality:");
         quality_label.xalign = 1;
         format_grid.attach (quality_label, 2, 0);
 
@@ -77,7 +81,7 @@ public class Velox.OptionsPageBuilder : GLib.Object {
         });
         format_grid.attach (quality_dropdown, 3, 0);
 
-        var container_label = new Gtk.Label ("Container:");
+        container_label = new Gtk.Label ("Container:");
         container_label.xalign = 1;
         format_grid.attach (container_label, 0, 1);
 
@@ -94,6 +98,21 @@ public class Velox.OptionsPageBuilder : GLib.Object {
             "AAC", "Opus", "MP3", "FLAC", "Any"
         });
         format_grid.attach (audio_codec_dropdown, 3, 1);
+
+        // Hide video-specific rows when Audio Only is selected (audio pipeline ignores them)
+        void update_format_visibility () {
+            bool is_audio = type_dropdown.get_selected () == 1;
+            codec_label.visible = !is_audio;
+            codec_dropdown.visible = !is_audio;
+            quality_label.visible = !is_audio;
+            quality_dropdown.visible = !is_audio;
+            container_label.visible = !is_audio;
+            container_dropdown.visible = !is_audio;
+        }
+        update_format_visibility ();
+        type_dropdown.notify["selected"].connect (() => {
+            update_format_visibility ();
+        });
 
         content_box.append (format_grid);
         content_box.append (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
