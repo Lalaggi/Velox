@@ -78,9 +78,9 @@ build_flatpak_arch() {
     local repo_dir="flatpak-repo-${arch}"
 
     echo "=== Building Flatpak ${arch} bundle ==="
-    if flatpak-builder --force-clean --user --install-deps-from=flathub --arch="${arch}" "${build_dir}" pkgs/flatpak/com.github.lalaggi.velox.json; then
+    if flatpak-builder --force-clean --user --install-deps-from=flathub --arch="${arch}" "${build_dir}" pkgs/flatpak/xyz.lalaggi.velox.json; then
       flatpak build-export "${repo_dir}" "${build_dir}"
-      flatpak build-bundle "${repo_dir}" "flatpak-downloads/Velox-${arch}.flatpak" com.github.lalaggi.velox --arch="${arch}"
+      flatpak build-bundle "${repo_dir}" "flatpak-downloads/Velox-${arch}.flatpak" xyz.lalaggi.velox --arch="${arch}"
       rm -rf "${build_dir}" "${repo_dir}"
       echo "=== ${arch} bundle saved to flatpak-downloads/Velox-${arch}.flatpak ==="
     else
