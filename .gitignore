@@ -4,3 +4,6 @@ flatpak-build-*/
 flatpak-repo-*/
 .flatpak-builder/
 data/gschemas.compiled
+
+# built flatpak bundles
+flatpak-downloads/
