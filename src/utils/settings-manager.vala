@@ -48,40 +48,24 @@ public class Velox.SettingsManager : GLib.Object {
 
     private void migrate_gsettings () {
         try {
-            // Only migrate if old schema is installed (transitional) and new settings are still defaults
             var old_settings = new GLib.Settings ("com.github.lalaggi.velox");
             var new_settings = new GLib.Settings ("xyz.lalaggi.velox");
-            // Heuristic: if new has any non-default value, assume already migrated
-            // Check a sentinel key: if new's output-directory is not default, skip
-            // Instead, copy only if old has user-set values and new is still default
+            var schema = new_settings.settings_schema;
             foreach (var key in old_settings.list_keys ()) {
-                // If new already has a user value (not default), skip
-                // We check if new is default by comparing to old? Simpler: copy if old was changed
-                // GSettings doesn't directly expose "is default", but we can compare old vs default
-                // For seamless, just copy all keys where old != new and old != default
-                // Use try to get value generically via GVariant
                 try {
+                    if (!schema.has_key (key)) continue;
                     var old_val = old_settings.get_value (key);
                     var new_val = new_settings.get_value (key);
-                    // Only copy if values differ and old is not equal to new
-                    if (!old_val.equal (new_val)) {
-                        // Also ensure old is not the default? We check if new equals default by not copying over default-only
-                        // Copy anyway if old differs – this is safe for first-run migration
-                        // To avoid overwriting user-changed new values, only copy if new is still default
-                        // We approximate: if new equal to its default (we can't easily get default), we copy
-                        // Simpler: always copy if old differs and new file doesn't exist yet (first run)
-                        // Check migration marker: if new's file exists, skip
-                        // For now, copy if old differs
+                    var def_val = new_settings.get_default_value (key);
+                    if (def_val != null && new_val.equal ((!)def_val) && !old_val.equal (new_val)) {
                         new_settings.set_value (key, old_val);
                     }
                 } catch (Error e) {
                     warning ("GSettings migrate key %s failed: %s", key, e.message);
                 }
             }
-            // Sync to ensure written
             Settings.sync ();
         } catch (Error e) {
-            // Old schema not installed or other error – ignore for fresh installs
             debug ("GSettings migration skipped (no old schema): %s", e.message);
         }
     }
@@ -216,11 +200,53 @@ public class Velox.SettingsManager : GLib.Object {
         set { settings.set_boolean ("default-embed-chapters", value); }
     }
 
+    // Music library (ytm-sync parity)
+    public string music_directory {
+        owned get { return settings.get_string ("music-directory"); }
+        set { settings.set_string ("music-directory", value); }
+    }
+    public bool music_crop_thumbnail {
+        get { return settings.get_boolean ("music-crop-thumbnail"); }
+        set { settings.set_boolean ("music-crop-thumbnail", value); }
+    }
+    public bool music_generate_playlists {
+        get { return settings.get_boolean ("music-generate-playlists"); }
+        set { settings.set_boolean ("music-generate-playlists", value); }
+    }
+    public bool music_use_content_toml {
+        get { return settings.get_boolean ("music-use-content-toml"); }
+        set { settings.set_boolean ("music-use-content-toml", value); }
+    }
+    public string music_audio_format {
+        owned get { return settings.get_string ("music-audio-format"); }
+        set { settings.set_string ("music-audio-format", value); }
+    }
+    public string music_organization {
+        owned get { return settings.get_string ("music-organization"); }
+        set { settings.set_string ("music-organization", value); }
+    }
+    public bool music_library_sync_enabled {
+        get { return settings.get_boolean ("music-library-sync-enabled"); }
+        set { settings.set_boolean ("music-library-sync-enabled", value); }
+    }
+    public bool default_is_music {
+        get { return settings.get_boolean ("default-is-music"); }
+        set { settings.set_boolean ("default-is-music", value); }
+    }
+
     // Apply saved defaults to a DownloadOptions object
     public void apply_defaults (Velox.DownloadOptions opts) {
         opts.output_directory = output_directory;
         opts.output_template = output_template;
         opts.is_audio_only = default_audio_only;
+        opts.is_music_mode = default_is_music;
+        opts.music_directory = music_directory;
+        opts.music_crop_thumbnail = music_crop_thumbnail;
+        opts.music_generate_playlists = music_generate_playlists;
+        opts.music_use_content_toml = music_use_content_toml;
+        opts.music_audio_format = music_audio_format;
+        opts.music_organization = music_organization;
+        opts.music_library_sync_enabled = music_library_sync_enabled;
         opts.video_codec = default_video_codec;
         opts.audio_codec = default_audio_codec;
         opts.video_quality = default_quality;

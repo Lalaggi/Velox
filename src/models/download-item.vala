@@ -2,6 +2,11 @@ public class Velox.DownloadItem : GLib.Object {
     public string url { get; set; }
     public string title { get; set; default = ""; }
     public string uploader { get; set; default = ""; }
+    public string artist { get; set; default = ""; }
+    public string album { get; set; default = ""; }
+    public string album_id { get; set; default = ""; }
+    public string playlist_title { get; set; default = ""; }
+    public string youtube_id { get; set; default = ""; }
     public int64 duration { get; set; default = 0; }
     public string thumbnail_url { get; set; default = ""; }
     public DownloadState state { get; set; default = QUEUED; }

@@ -13,8 +13,19 @@ public class Velox.DownloadOptions : GLib.Object {
     public string audio_quality { get; set; default = "best"; }
     public string audio_container { get; set; default = "m4a"; }
 
-    // Type
+    // Type - Video / AudioOnly / Music
     public bool is_audio_only { get; set; default = false; }
+    public bool is_music_mode { get; set; default = false; }
+
+    // Music library (mirrors ytm-sync)
+    public string music_directory { get; set; default = "~/Music"; }
+    public string music_audio_format { get; set; default = "opus"; }
+    public bool music_crop_thumbnail { get; set; default = true; }
+    public bool music_generate_playlists { get; set; default = true; }
+    public bool music_use_content_toml { get; set; default = true; }
+    public string music_organization { get; set; default = "artist-album"; }
+    public string music_playlist_name { get; set; default = ""; }
+    public bool music_library_sync_enabled { get; set; default = false; }
 
     // Subtitles
     public bool download_subtitles { get; set; default = false; }

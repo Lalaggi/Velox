@@ -122,5 +122,42 @@
       <default>false</default>
       <summary>Default embed chapters</summary>
     </key>
+
+    <!-- Music mode -->
+    <key name="music-directory" type="s">
+      <default>'~/Music'</default>
+      <summary>Music library directory</summary>
+      <description>Root folder for music mode (Artist/Album structure + content.toml)</description>
+    </key>
+    <key name="music-crop-thumbnail" type="b">
+      <default>true</default>
+      <summary>Crop music cover to square</summary>
+      <description>Center-crop non-square thumbnails to 1:1 for music files</description>
+    </key>
+    <key name="music-generate-playlists" type="b">
+      <default>true</default>
+      <summary>Generate .m3u8 playlists for music</summary>
+    </key>
+    <key name="music-use-content-toml" type="b">
+      <default>true</default>
+      <summary>Track music library in content.toml</summary>
+    </key>
+    <key name="music-audio-format" type="s">
+      <default>'opus'</default>
+      <summary>Music audio format</summary>
+    </key>
+    <key name="music-organization" type="s">
+      <default>'artist-album'</default>
+      <summary>Music path organization</summary>
+      <description>artist-album, artist, or flat</description>
+    </key>
+    <key name="music-library-sync-enabled" type="b">
+      <default>false</default>
+      <summary>Enable optional YTM library sync</summary>
+    </key>
+    <key name="default-is-music" type="b">
+      <default>false</default>
+      <summary>Default to music mode</summary>
+    </key>
   </schema>
 </schemalist>

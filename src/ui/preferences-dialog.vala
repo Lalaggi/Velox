@@ -27,6 +27,7 @@ public class Velox.PreferencesDialog : Adw.PreferencesDialog {
     private Adw.ComboRow default_container_row;
     private Adw.ComboRow default_audio_codec_row;
     private Adw.SwitchRow default_audio_only_row;
+    private Adw.SwitchRow default_is_music_row;
     private Adw.EntryRow default_sublangs_row;
     private Adw.SwitchRow default_download_subs_row;
     private Adw.SwitchRow default_embed_subs_row;
@@ -35,6 +36,15 @@ public class Velox.PreferencesDialog : Adw.PreferencesDialog {
     private Adw.SwitchRow default_embed_metadata_row;
     private Adw.SwitchRow default_embed_thumbnail_row;
     private Adw.SwitchRow default_embed_chapters_row;
+
+    // Music library widgets
+    private Adw.ActionRow music_dir_row;
+    private Adw.ComboRow music_format_row;
+    private Adw.ComboRow music_org_row;
+    private Adw.SwitchRow music_crop_row;
+    private Adw.SwitchRow music_toml_row;
+    private Adw.SwitchRow music_playlist_row;
+    private Adw.SwitchRow music_sync_row;
 
     public PreferencesDialog (Velox.SettingsManager mgr) {
         Object ();
@@ -210,6 +220,12 @@ public class Velox.PreferencesDialog : Adw.PreferencesDialog {
         default_audio_only_row.active = mgr.default_audio_only;
         formats_group.add (default_audio_only_row);
 
+        default_is_music_row = new Adw.SwitchRow ();
+        default_is_music_row.title = "Music mode";
+        default_is_music_row.subtitle = "Organized Artist/Album library with content.toml like ytm-sync";
+        default_is_music_row.active = mgr.default_is_music;
+        formats_group.add (default_is_music_row);
+
         // Video group (hidden when Audio only is on)
         default_codec_row = new Adw.ComboRow ();
         default_codec_row.title = "Video codec";
@@ -243,15 +259,27 @@ public class Velox.PreferencesDialog : Adw.PreferencesDialog {
         default_audio_codec_row.selected = audio_codec_to_index (mgr.default_audio_codec);
         formats_group.add (default_audio_codec_row);
 
-        // Audio-only hides video-related rows (they are ignored by the audio pipeline)
+        // Audio-only / Music hides video-related rows (they are ignored by the audio pipeline)
         void update_format_visibility () {
             bool audio = default_audio_only_row.active;
+            bool music = default_is_music_row.active;
+            if (music) audio = true;
             default_codec_row.visible = !audio;
             default_quality_row.visible = !audio;
             default_container_row.visible = !audio;
+            if (music) {
+                default_audio_only_row.subtitle = "Audio only (enabled by Music)";
+                default_audio_only_row.sensitive = false;
+            } else {
+                default_audio_only_row.subtitle = "Download audio by default";
+                default_audio_only_row.sensitive = true;
+            }
         }
         update_format_visibility ();
         default_audio_only_row.notify["active"].connect (() => {
+            update_format_visibility ();
+        });
+        default_is_music_row.notify["active"].connect (() => {
             update_format_visibility ();
         });
 
@@ -308,6 +336,76 @@ public class Velox.PreferencesDialog : Adw.PreferencesDialog {
         default_auto_subs_row.active = mgr.default_auto_subs;
         subs_group.add (default_auto_subs_row);
 
+        // Music library page (ytm-sync parity)
+        var music_page = new Adw.PreferencesPage ();
+        music_page.title = "Music";
+        music_page.icon_name = "folder-music-symbolic";
+        this.add (music_page);
+
+        var music_group = new Adw.PreferencesGroup ();
+        music_group.title = "Music Library";
+        music_group.description = "Organized like ytm-sync: Artist/Album/Title + content.toml + .m3u8";
+        music_page.add (music_group);
+
+        music_dir_row = new Adw.ActionRow ();
+        music_dir_row.title = "Music directory";
+        music_dir_row.subtitle = mgr.music_directory;
+        music_group.add (music_dir_row);
+        var music_btn = new Gtk.Button ();
+        music_btn.label = "Browse…";
+        music_btn.add_css_class ("flat");
+        music_btn.clicked.connect (() => {
+            var dlg = new Gtk.FileDialog ();
+            dlg.title = "Choose music library folder";
+            var cur = File.new_for_path (mgr.music_directory.replace ("~", Environment.get_home_dir ()));
+            if (cur.query_exists ()) dlg.initial_folder = cur;
+            dlg.select_folder.begin (null, null, (obj,res) => {
+                try {
+                    var f = dlg.select_folder.end (res);
+                    music_dir_row.subtitle = f.get_path ();
+                    save_settings (mgr);
+                } catch (Error e) {}
+            });
+        });
+        music_dir_row.add_suffix (music_btn);
+
+        music_format_row = new Adw.ComboRow ();
+        music_format_row.title = "Music format";
+        music_format_row.subtitle = "Opus recommended (ytm-sync)";
+        music_format_row.model = new Gtk.StringList ({ "opus", "m4a", "mp3", "flac" });
+        music_format_row.selected = music_format_to_index (mgr.music_audio_format);
+        music_group.add (music_format_row);
+
+        music_org_row = new Adw.ComboRow ();
+        music_org_row.title = "Organization";
+        music_org_row.model = new Gtk.StringList ({ "Artist / Album", "Artist only", "Flat" });
+        music_org_row.selected = music_org_to_index (mgr.music_organization);
+        music_group.add (music_org_row);
+
+        music_crop_row = new Adw.SwitchRow ();
+        music_crop_row.title = "Square cover art";
+        music_crop_row.subtitle = "Center-crop non-square thumbnails to 1:1 (ytm-sync fix-covers)";
+        music_crop_row.active = mgr.music_crop_thumbnail;
+        music_group.add (music_crop_row);
+
+        music_toml_row = new Adw.SwitchRow ();
+        music_toml_row.title = "Track in content.toml";
+        music_toml_row.subtitle = "Write ytm-sync compatible index";
+        music_toml_row.active = mgr.music_use_content_toml;
+        music_group.add (music_toml_row);
+
+        music_playlist_row = new Adw.SwitchRow ();
+        music_playlist_row.title = "Generate .m3u8 playlists";
+        music_playlist_row.subtitle = "Group tracks by genre/playlist";
+        music_playlist_row.active = mgr.music_generate_playlists;
+        music_group.add (music_playlist_row);
+
+        music_sync_row = new Adw.SwitchRow ();
+        music_sync_row.title = "Optional YTM library sync";
+        music_sync_row.subtitle = "Use ytm-sync auth if present (~/.local/share/ytm-sync/auth.txt)";
+        music_sync_row.active = mgr.music_library_sync_enabled;
+        music_group.add (music_sync_row);
+
         // Save when dialog closes
         this.closed.connect (() => { save_settings (mgr); });
 
@@ -324,10 +422,18 @@ public class Velox.PreferencesDialog : Adw.PreferencesDialog {
         sb_enable_row.notify["active"].connect (() => { save_settings (mgr); });
         sb_remove_row.notify["active"].connect (() => { save_settings (mgr); });
         default_audio_only_row.notify["active"].connect (() => { save_settings (mgr); });
+        default_is_music_row.notify["active"].connect (() => { save_settings (mgr); });
         default_codec_row.notify["selected"].connect (() => { save_settings (mgr); });
         default_quality_row.notify["selected"].connect (() => { save_settings (mgr); });
         default_container_row.notify["selected"].connect (() => { save_settings (mgr); });
         default_audio_codec_row.notify["selected"].connect (() => { save_settings (mgr); });
+        music_dir_row.notify["subtitle"].connect (() => { save_settings (mgr); });
+        music_format_row.notify["selected"].connect (() => { save_settings (mgr); });
+        music_org_row.notify["selected"].connect (() => { save_settings (mgr); });
+        music_crop_row.notify["active"].connect (() => { save_settings (mgr); });
+        music_toml_row.notify["active"].connect (() => { save_settings (mgr); });
+        music_playlist_row.notify["active"].connect (() => { save_settings (mgr); });
+        music_sync_row.notify["active"].connect (() => { save_settings (mgr); });
         default_sublangs_row.notify["text"].connect (() => { save_settings (mgr); });
         default_download_subs_row.notify["active"].connect (() => { save_settings (mgr); });
         default_embed_subs_row.notify["active"].connect (() => { save_settings (mgr); });
@@ -376,11 +482,19 @@ public class Velox.PreferencesDialog : Adw.PreferencesDialog {
         mgr.sponsorblock_categories = cat_array;
 
         mgr.default_audio_only = default_audio_only_row.active;
+        mgr.default_is_music = default_is_music_row.active;
         mgr.default_video_codec = index_to_codec ((int) default_codec_row.selected);
         mgr.default_quality = index_to_quality ((int) default_quality_row.selected);
         mgr.default_container = index_to_container ((int) default_container_row.selected);
         mgr.default_audio_codec = index_to_audio_codec ((int) default_audio_codec_row.selected);
         mgr.default_subtitle_langs = default_sublangs_row.text;
+        mgr.music_directory = music_dir_row.subtitle;
+        mgr.music_audio_format = index_to_music_format ((int) music_format_row.selected);
+        mgr.music_organization = index_to_music_org ((int) music_org_row.selected);
+        mgr.music_crop_thumbnail = music_crop_row.active;
+        mgr.music_use_content_toml = music_toml_row.active;
+        mgr.music_generate_playlists = music_playlist_row.active;
+        mgr.music_library_sync_enabled = music_sync_row.active;
         mgr.default_download_subs = default_download_subs_row.active;
         mgr.default_embed_subs = default_embed_subs_row.active;
         mgr.default_save_subs_as_srt = default_save_srt_row.active;
@@ -450,6 +564,30 @@ public class Velox.PreferencesDialog : Adw.PreferencesDialog {
     private string index_to_audio_codec (int idx) {
         string[] codecs = { "AAC", "Opus", "MP3", "FLAC", "Any" };
         return idx >= 0 && idx < codecs.length ? codecs[idx] : "Any";
+    }
+
+    private int music_format_to_index (string fmt) {
+        switch (fmt) {
+            case "m4a": return 1;
+            case "mp3": return 2;
+            case "flac": return 3;
+            default: return 0;
+        }
+    }
+    private string index_to_music_format (int idx) {
+        string[] fmts = { "opus", "m4a", "mp3", "flac" };
+        return idx >=0 && idx < fmts.length ? fmts[idx] : "opus";
+    }
+    private int music_org_to_index (string org) {
+        switch (org) {
+            case "artist": return 1;
+            case "flat": return 2;
+            default: return 0;
+        }
+    }
+    private string index_to_music_org (int idx) {
+        string[] orgs = { "artist-album", "artist", "flat" };
+        return idx >=0 && idx < orgs.length ? orgs[idx] : "artist-album";
     }
 
 
