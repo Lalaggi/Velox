@@ -292,9 +292,9 @@ public class Velox.OptionsPageBuilder : GLib.Object {
         content_box.append (format_group);
 
         // --- Metadata and Subtitles group ---
+        // The ExpanderRow already carries the section title; leaving the group
+        // untitled avoids the duplicated heading in the options page.
         var metadata_group = new Adw.PreferencesGroup ();
-        metadata_group.title = "Metadata and Subtitles";
-        metadata_group.description = "Embed extra data into files";
 
         var meta_expander = new Adw.ExpanderRow ();
         meta_expander.title = "Metadata and Subtitles";
@@ -345,9 +345,8 @@ public class Velox.OptionsPageBuilder : GLib.Object {
         content_box.append (metadata_group);
 
         // --- SponsorBlock group ---
+        // The ExpanderRow already carries the section title.
         var sb_group = new Adw.PreferencesGroup ();
-        sb_group.title = "SponsorBlock";
-        sb_group.description = "Skip or mark sponsored segments";
 
         var sb_expander = new Adw.ExpanderRow ();
         sb_expander.title = "SponsorBlock";
@@ -377,9 +376,13 @@ public class Velox.OptionsPageBuilder : GLib.Object {
         sb_cats_box.margin_start = 24;
         sb_cats_box.selection_mode = Gtk.SelectionMode.NONE;
         sb_cats_box.max_children_per_line = 4;
-        string[] cats = { "Sponsor", "Intro", "Outro", "Self-promo", "Preview", "Filler" };
-        foreach (var c in cats) {
-            sb_cats_box.append (new Gtk.CheckButton.with_label (c));
+        string[] cat_labels = { "Sponsor", "Intro", "Outro", "Self-promo", "Preview", "Filler" };
+        string[] cat_keys = { "sponsor", "intro", "outro", "selfpromo", "preview", "filler" };
+        for (int i = 0; i < cat_labels.length; i++) {
+            var check = new Gtk.CheckButton.with_label (cat_labels[i]);
+            // Store the yt-dlp category key (e.g. "selfpromo", not "self-promo").
+            check.name = cat_keys[i];
+            sb_cats_box.append (check);
         }
         sb_inner.append (sb_cats_box);
 
@@ -405,16 +408,14 @@ public class Velox.OptionsPageBuilder : GLib.Object {
         var adv_row = new Adw.ActionRow ();
         adv_row.title = "Extra arguments";
         adv_row.subtitle = "e.g. --split-chapters --concurrent-fragments 4";
+        adv_row.activatable = false;
         adv_entry = new Gtk.Entry ();
         adv_entry.placeholder_text = "--split-chapters --force-keyframes-at-cuts";
         adv_entry.hexpand = true;
-        adv_entry.width_chars = 32;
-        var adv_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 4);
-        adv_box.margin_top = 6;
-        adv_box.margin_bottom = 6;
-        adv_box.append (adv_entry);
+        adv_entry.width_chars = 30;
+        adv_entry.valign = Gtk.Align.CENTER;
+        adv_row.add_suffix (adv_entry);
         adv_group.add (adv_row);
-        adv_group.add (adv_box);
 
         content_box.append (adv_group);
 
@@ -501,7 +502,7 @@ public class Velox.OptionsPageBuilder : GLib.Object {
                 var box_child = fbc.get_child ();
                 if (box_child is Gtk.CheckButton) {
                     var check = (Gtk.CheckButton) box_child;
-                    check.active = GLib.strv_contains (opts.sponsorblock_categories, check.label.down ());
+                    check.active = GLib.strv_contains (opts.sponsorblock_categories, check.name);
                 }
             }
             child = child.get_next_sibling ();
@@ -567,7 +568,7 @@ public class Velox.OptionsPageBuilder : GLib.Object {
                 if (box_child is Gtk.CheckButton) {
                     var check = (Gtk.CheckButton) box_child;
                     if (check.active) {
-                        cats.append_val (check.label.down ());
+                        cats.append_val (check.name);
                     }
                 }
             }

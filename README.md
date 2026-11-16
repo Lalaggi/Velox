@@ -17,38 +17,38 @@ A GTK4 media downloader written in Vala.
 - **Playlists** — Automatic playlist expansion into individual videos
 - **Concurrency** — Configurable parallel downloads with a managed queue
 - **Settings** — Persistent preferences for output directory, filename templates, network options, download archive, rate limiting, and custom yt-dlp arguments
-- **Visuals** — Follows system light/dark mode via Adwaita, responsive layout
+- **Visuals** — Video thumbnails with site-icon fallbacks, system light/dark mode via Adwaita, responsive layout
 
 ## Dependencies
 
 **Arch Linux:**
 ```bash
-sudo pacman -S vala meson gtk4 libadwaita json-glib
+sudo pacman -S vala meson gtk4 libadwaita json-glib libsoup3
 ```
 
 **Debian/Ubuntu:**
 ```bash
-sudo apt install vala meson libgtk-4-dev libadwaita-1-dev libjson-glib-dev
+sudo apt install vala meson libgtk-4-dev libadwaita-1-dev libjson-glib-dev libsoup-3.0-dev
 ```
 
 **Fedora:**
 ```bash
-sudo dnf install vala meson gtk4-devel libadwaita-devel json-glib-devel
+sudo dnf install vala meson gtk4-devel libadwaita-devel json-glib-devel libsoup3-devel
 ```
 
 **OpenSUSE Tumbleweed:**
 ```bash
-sudo zypper install vala meson gtk4-devel libadwaita-devel json-glib-devel
+sudo zypper install vala meson gtk4-devel libadwaita-devel json-glib-devel libsoup3-devel
 ```
 
 **Void Linux:**
 ```bash
-sudo xbps-install vala meson gtk4-devel libadwaita-devel json-glib-devel
+sudo xbps-install vala meson gtk4-devel libadwaita-devel json-glib-devel libsoup3-devel
 ```
 
 **Alpine:**
 ```bash
-sudo apk add vala meson gtk4.0-dev libadwaita-dev json-glib-dev
+sudo apk add vala meson gtk4.0-dev libadwaita-dev json-glib-dev libsoup3-dev
 ```
 
 **Runtime dependency:** [yt-dlp](https://github.com/yt-dlp/yt-dlp) must be installed and available on `PATH`.

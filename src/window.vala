@@ -96,6 +96,10 @@ public class Velox.Window : Adw.ApplicationWindow {
         key_ctrl.key_pressed.connect ((keyval, keycode, state) => {
             bool ctrl = (state & Gdk.ModifierType.CONTROL_MASK) != 0;
             if (ctrl && keyval == Gdk.Key.v) {
+                // Let real text fields handle paste normally; only treat Ctrl+V
+                // as "paste URLs into the queue" when focus is not editable.
+                var focus = get_focus ();
+                if (focus is Gtk.Editable) return false;
                 on_paste_from_clipboard ();
                 return true;
             }
@@ -265,8 +269,8 @@ public class Velox.Window : Adw.ApplicationWindow {
         bottom_box.append (queue_summary_label);
 
         clear_completed_button = new Gtk.Button ();
-        clear_completed_button.label = "Clear Completed";
-        clear_completed_button.tooltip_text = "Remove finished downloads from the list";
+        clear_completed_button.label = "Clear Finished";
+        clear_completed_button.tooltip_text = "Remove finished and failed downloads from the list";
         clear_completed_button.visible = false;
         clear_completed_button.clicked.connect (on_clear_completed);
         bottom_box.append (clear_completed_button);
@@ -276,8 +280,9 @@ public class Velox.Window : Adw.ApplicationWindow {
         next_button.add_css_class ("suggested-action");
         next_button.sensitive = false;
         next_button.clicked.connect (() => {
-            settings_manager.apply_defaults (download_options);
-            sync_ui_from_options ();
+            // Do not re-apply saved defaults here: that would silently discard
+            // any option changes the user made for this batch. Defaults are
+            // applied at startup and after the Preferences dialog closes.
             nav_view.push_by_tag ("options");
         });
         bottom_box.append (next_button);
@@ -510,7 +515,9 @@ public class Velox.Window : Adw.ApplicationWindow {
         var to_remove = new GLib.List<Velox.DownloadItem> ();
         for (uint i = 0; i < item_store.n_items; i++) {
             var it = (Velox.DownloadItem) item_store.get_item (i);
-            if (it.state == Velox.DownloadState.DONE) {
+            if (it.state == Velox.DownloadState.DONE ||
+                it.state == Velox.DownloadState.ERROR ||
+                it.state == Velox.DownloadState.CANCELLED) {
                 to_remove.append (it);
             }
         }
@@ -524,7 +531,7 @@ public class Velox.Window : Adw.ApplicationWindow {
             }
         }
         update_empty_state ();
-        send_toast ("Cleared completed");
+        send_toast ("Cleared finished downloads");
     }
 
     private async void expand_playlist (Velox.DownloadItem placeholder, string url, Velox.DownloadItemRow row) {
@@ -663,7 +670,7 @@ public class Velox.Window : Adw.ApplicationWindow {
             row.set_subtitle (brief);
             row.tooltip_text = error;
             if (item.retry_count < item.max_retries) {
-                row.tooltip_text += "\n\nClick to retry.";
+                row.tooltip_text += "\n\nUse the retry button to try again.";
             }
         }
         item.status_text = "Error";
@@ -805,7 +812,7 @@ public class Velox.Window : Adw.ApplicationWindow {
         }
         if (parts.len == 0) parts.append ("%u total".printf (total));
         queue_summary_label.label = parts.str;
-        clear_completed_button.visible = (done > 0);
+        clear_completed_button.visible = (done > 0 || err > 0);
     }
 
     private void update_thumbnail_sensitivity () {
@@ -834,14 +841,33 @@ public class Velox.Window : Adw.ApplicationWindow {
 
         if (item_store.n_items == 0) return;
 
+        uint startable = 0;
+        for (uint i = 0; i < item_store.n_items; i++) {
+            var it = (Velox.DownloadItem) item_store.get_item (i);
+            if (it.state != Velox.DownloadState.DONE &&
+                it.state != Velox.DownloadState.DOWNLOADING) {
+                startable++;
+            }
+        }
+        if (startable == 0) {
+            send_toast ("Nothing to download");
+            return;
+        }
+
         download_manager.max_concurrent = settings_manager.max_concurrent;
         download_manager.start (item_store, download_options);
         nav_view.pop ();
-        send_toast ("Started %u downloads".printf (item_store.n_items));
+        send_toast ("Started %u download%s".printf (startable, startable == 1 ? "" : "s"));
     }
 
     private void on_preferences_clicked () {
         var dialog = new Velox.PreferencesDialog (settings_manager);
+        // Re-apply saved defaults when the user closes Preferences so changes
+        // take effect without restarting, while batch tweaks survive navigation.
+        dialog.closed.connect (() => {
+            settings_manager.apply_defaults (download_options);
+            sync_ui_from_options ();
+        });
         dialog.present (this);
     }
 }

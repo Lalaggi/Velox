@@ -12,6 +12,7 @@ dependency('glib-2.0', version: '>= 2.76')
 dependency('gtk4', version: '>= 4.12')
 dependency('libadwaita-1', version: '>= 1.4')
 dependency('json-glib-1.0')
+dependency('libsoup-3.0')
 
 add_project_arguments('-DGETTEXT_PACKAGE="velox"', language: 'c')
 

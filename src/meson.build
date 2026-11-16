@@ -10,6 +10,7 @@ sources = files(
     'utils/progress-parser.vala',
     'utils/settings-manager.vala',
     'utils/music-library.vala',
+    'utils/thumbnail-loader.vala',
     'ui/preferences-dialog.vala',
     'ui/download-item-row.vala',
     'ui/options-page-builder.vala',
@@ -24,6 +25,7 @@ app = executable(
         dependency('libadwaita-1', version: '>= 1.4'),
         dependency('json-glib-1.0'),
         dependency('gdk-pixbuf-2.0'),
+        dependency('libsoup-3.0'),
     ],
     install: true,
 )

@@ -358,7 +358,7 @@ public class Velox.YtdlpService : GLib.Object {
         // Network settings
         if (opts.rate_limit.length > 0) {
             args.add ("--limit-rate");
-            args.add (opts.rate_limit);
+            args.add (normalize_rate_limit (opts.rate_limit));
         }
         if (opts.proxy.length > 0) {
             args.add ("--proxy");
@@ -454,6 +454,17 @@ public class Velox.YtdlpService : GLib.Object {
             case "FLAC": return "ba[acodec~='flac']/ba";
             default:     return "";
         }
+    }
+
+    // The UI labels the rate limit in KB/s. yt-dlp treats a bare number as
+    // bytes/second, so append K unless the user already supplied a unit.
+    private string normalize_rate_limit (string raw) {
+        string v = raw.strip ();
+        if (v.length == 0) return "";
+        for (int i = 0; i < v.length; i++) {
+            if (v.get_char (i).isalpha ()) return v;
+        }
+        return v + "K";
     }
 
     public async void download (Velox.DownloadItem item, Velox.DownloadOptions opts) {

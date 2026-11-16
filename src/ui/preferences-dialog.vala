@@ -123,6 +123,7 @@ public class Velox.PreferencesDialog : Adw.PreferencesDialog {
 
         rate_limit_row = new Adw.EntryRow ();
         rate_limit_row.title = "Rate limit (KB/s)";
+        rate_limit_row.tooltip_text = "Empty = unlimited. Bare numbers are treated as KB/s.";
         rate_limit_row.text = mgr.rate_limit;
         rate_limit_row.show_apply_button = true;
         network_group.add (rate_limit_row);
